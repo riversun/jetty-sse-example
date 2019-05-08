@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h1>Server Sent Event(SSE) Example</h1>
+・PUSH通知をうけとってメッセージを表示します<br>
+・PUSH送信は↓のフォームから実行できます<br>
+・別のブラウザでこのページを開いても、BroadcastするのにPUSH通知を受け取れます
+<hr>
+<h3>PUSH送信するメッセージ</h3>
+<input id="text_message" value="テストメッセージ">
+<button id="send_message">PUSH送信</button>
+（エンターでもOK)
+<br>
+<br>
+<small>（他のブラウザを開いても↓のメッセージが受信される）</small>
+<hr>
+<h3>Server PUSHを受信したメッセージ</h3>
+<div id="messages"></div>
+<script>
+    const eventSource = new EventSource('sse');//http://localhost:8080/sse
+    const msgContent = document.querySelector('#messages');
+    eventSource.addEventListener('message', (event) => {
+        window.console.info('SSE: ' + event.data);
+        msgContent.innerHTML += event.data + '<br>';
+    });
+    const msgText = document.querySelector('#text_message');
+    const msgPostBtn = document.querySelector('#send_message');
+
+    const funcSendData = (event) => {
+        sendData('sse', {message: msgText.value});
+        msgText.value = '';
+    };
+    msgText.addEventListener('keypress', function (event) {
+
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            funcSendData(event);
+        }
+    });
+
+    msgPostBtn.addEventListener('click', funcSendData);
+
+
+    //JSでPOSTするサンプル
+    //https://developer.mozilla.org/ja/docs/Learn/HTML/Forms/Sending_forms_through_JavaScript
+    function sendData(url, data) {
+        var XHR = new XMLHttpRequest();
+        var urlEncodedData = '';
+        var urlEncodedDataPairs = [];
+        var name;
+
+        // data オブジェクトを、URL エンコードしたキーと値のペアの配列に変換します
+        for (name in data) {
+            urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
+        }
+
+        // キーと値のペアをひとつの文字列に連結して、Web ブラウザのフォーム送信方式に
+        // 合うよう、エンコードされた空白をプラス記号に置き換えます。
+        urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+
+        // データが正常に送信された場合に行うことを定義します
+        XHR.addEventListener('load', function (event) {
+
+        });
+
+        // エラーが発生した場合に行うことを定義します
+        XHR.addEventListener('error', function (event) {
+            alert('Oups! Something goes wrong.');
+        });
+
+        // リクエストをセットアップします
+        XHR.open('POST', url);
+
+        // フォームデータの POST リクエストを扱うために必要な HTTP ヘッダを追加します
+        XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        // 最後に、データを送信します
+        XHR.send(urlEncodedData);
+    }
+</script>
+</body>
+</html>
