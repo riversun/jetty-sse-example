@@ -21,6 +21,10 @@
 <hr>
 <h3>Server PUSHを受信したメッセージ</h3>
 <div id="messages"></div>
+
+<!-- polyfill for MS IE and Edge -->
+<script src="eventsource-polyfill.js"></script>
+
 <script>
     const eventSource = new EventSource('sse');//http://localhost:8080/sse
     const msgContent = document.querySelector('#messages');
@@ -83,5 +87,6 @@
         XHR.send(urlEncodedData);
     }
 </script>
+
 </body>
 </html>
